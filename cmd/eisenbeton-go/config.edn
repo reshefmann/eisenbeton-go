@@ -1,0 +1,4 @@
+{:http-port "8500"
+ :pub-only true
+ :nats-uri "nats://localhost:4222"
+ :nats-reply-timeout-ms 3000}

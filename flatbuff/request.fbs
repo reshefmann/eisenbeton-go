@@ -1,0 +1,15 @@
+namespace eisenbeton.wire.request;
+
+
+
+
+table EisenRequest {
+    uri:string;
+    path:string;
+    method:string;
+    content_type:string;
+    content:[ubyte];
+}
+
+root_type EisenRequest;
+

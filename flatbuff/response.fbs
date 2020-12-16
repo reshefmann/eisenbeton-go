@@ -1,0 +1,8 @@
+namespace eisenbeton.wire.response;
+
+table EisenResponse {
+    content_type:string;
+    content:[ubyte];
+}
+
+root_type EisenResponse;
