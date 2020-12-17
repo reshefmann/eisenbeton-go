@@ -20,9 +20,9 @@ Since nats.io is used for the messaging the system is **polyglot**.
                                                  |      |             |
    +--------------+        +-------------+       |      --------------+
    |              |        |             |       |
-   | Server       |        |   nats      |       |
-   | (eisenbeton) +------->+   (Server   +-------+
-   |              |        |   or        +-------+      +-------------+
+   | Server       |        |   nats.io   |       |
+   | (eisenbeton) +<------>+   (Server   +<------+
+   |              |        |   or        +<------+      +-------------+
    +--------------+        |   Cluster)  |       |      |             |
                            |             |       +----->+   Handler   |
                            +-------------+              |             |
@@ -38,7 +38,7 @@ Since nats.io is used for the messaging the system is **polyglot**.
 - *Server* - The HTTP server that take care of handling the incoming requests.
 - *Handler* - The internal handler that performs the actual work. Connect to the system with client lib.
 - *nats* - well, the nats.io server/cluster that takes care of the communication.
-- *Eisenbeton client lib* - A client library embedded in the handler to communicate with nats.
+- *Eisenbeton handler lib* - A library embedded in the handler to communicate with nats.
 
 ### Messaging 
 For the messages *eisenbeton* uses flatbuffers.

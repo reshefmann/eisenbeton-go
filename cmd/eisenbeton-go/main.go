@@ -1,8 +1,8 @@
 package main
 
 import (
-	"eisenbeton-go/flatbuff/eisenbeton/wire/request"
-	"eisenbeton-go/flatbuff/eisenbeton/wire/response"
+	"eisenbeton-go/eisenbeton/wire/request"
+	"eisenbeton-go/eisenbeton/wire/response"
 	"eisenbeton-go/wire"
 	"io/ioutil"
 	"log"
@@ -82,7 +82,6 @@ func sendToNatsPubOnly(nc *nats.Conn, w http.ResponseWriter, req *http.Request) 
 	}()
 
 	w.WriteHeader(200)
-	//io.WriteString(w, "Hi nats")
 
 }
 
@@ -90,33 +89,36 @@ func sendToNatsReqRep(nc *nats.Conn, timeout time.Duration, w http.ResponseWrite
 
 	msg := convertHttpToFlatbuffBytes(req)
 
-	resp, err := nc.Request(req.URL.Path, msg, timeout)
+	respMsg, err := nc.Request(req.URL.Path, msg, timeout)
 	if err != nil {
 		// TODO: Provide a way to customize a response. Maybe scripting? Maybe static response?
 		w.WriteHeader(200)
 		return
 	}
-	resp.
+	resp := response.GetRootAsEisenResponse(respMsg.Data, 0)
+	w.Write(resp.ContentBytes())
+	w.WriteHeader(int(resp.Status()))
+
 }
 
-func makeHandler(nc *nats.Conn) func(http.ResponseWriter, *http.Request) {
+func makeHandler(config *ConfigDatabase, nc *nats.Conn) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, req *http.Request) {
-		sendToNatsPubOnly(nc, w, req)
+		sendToNatsReqRep(nc, time.Duration(config.NatsTimeoutMs)*time.Millisecond, w, req)
 	}
 }
 
-func handleHttp(port string, nc *nats.Conn) {
+func handleHttp(config *ConfigDatabase, nc *nats.Conn) {
 
-	http.HandleFunc("/", makeHandler(nc))
-	log.Println("Listening at :" + port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	http.HandleFunc("/", makeHandler(config, nc))
+	log.Println("Listening at :" + config.HttpPort)
+	log.Fatal(http.ListenAndServe(":"+config.HttpPort, nil))
 }
 
 type ConfigDatabase struct {
-	HttpPort    string `edn:"http-port" env:"HTTP_PORT"`
-	PubOnly     bool   `edn:"pub-only" env:"PUB_ONLY"`
-	NatsUri     string `edn:"nats-uri" env:"NATS_URI"`
-	NatsTimeout int    `edn:"nats-timeout" env:"NATS_TIMEOUT"`
+	HttpPort      string `edn:"http-port" env:"HTTP_PORT"`
+	PubOnly       bool   `edn:"pub-only" env:"PUB_ONLY"`
+	NatsUri       string `edn:"nats-uri" env:"NATS_URI"`
+	NatsTimeoutMs int    `edn:"nats-reply-timeout-ms" env:"NATS_TIMEOUT_MS"`
 }
 
 func readConfig() *ConfigDatabase {
@@ -132,6 +134,6 @@ func main() {
 		panic(err)
 	}
 	log.Println("Connected to nats.io @ " + cfg.NatsUri)
-	handleHttp(cfg.HttpPort, nc)
+	handleHttp(cfg, nc)
 
 }

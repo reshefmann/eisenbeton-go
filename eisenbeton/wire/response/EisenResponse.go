@@ -26,16 +26,37 @@ func (rcv *EisenResponse) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-func (rcv *EisenResponse) ContentType() []byte {
+func (rcv *EisenResponse) Status() int32 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
-		return rcv._tab.ByteVector(o + rcv._tab.Pos)
+		return rcv._tab.GetInt32(o + rcv._tab.Pos)
+	}
+	return 0
+}
+
+func (rcv *EisenResponse) MutateStatus(n int32) bool {
+	return rcv._tab.MutateInt32Slot(4, n)
+}
+
+func (rcv *EisenResponse) Headers(j int) []byte {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	if o != 0 {
+		a := rcv._tab.Vector(o)
+		return rcv._tab.ByteVector(a + flatbuffers.UOffsetT(j*4))
 	}
 	return nil
 }
 
-func (rcv *EisenResponse) Content(j int) byte {
+func (rcv *EisenResponse) HeadersLength() int {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	if o != 0 {
+		return rcv._tab.VectorLen(o)
+	}
+	return 0
+}
+
+func (rcv *EisenResponse) Content(j int) byte {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
 		a := rcv._tab.Vector(o)
 		return rcv._tab.GetByte(a + flatbuffers.UOffsetT(j*1))
@@ -44,7 +65,7 @@ func (rcv *EisenResponse) Content(j int) byte {
 }
 
 func (rcv *EisenResponse) ContentLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
 		return rcv._tab.VectorLen(o)
 	}
@@ -52,7 +73,7 @@ func (rcv *EisenResponse) ContentLength() int {
 }
 
 func (rcv *EisenResponse) ContentBytes() []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
 	}
@@ -60,7 +81,7 @@ func (rcv *EisenResponse) ContentBytes() []byte {
 }
 
 func (rcv *EisenResponse) MutateContent(j int, n byte) bool {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
 		a := rcv._tab.Vector(o)
 		return rcv._tab.MutateByte(a+flatbuffers.UOffsetT(j*1), n)
@@ -69,13 +90,19 @@ func (rcv *EisenResponse) MutateContent(j int, n byte) bool {
 }
 
 func EisenResponseStart(builder *flatbuffers.Builder) {
-	builder.StartObject(2)
+	builder.StartObject(3)
 }
-func EisenResponseAddContentType(builder *flatbuffers.Builder, contentType flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(contentType), 0)
+func EisenResponseAddStatus(builder *flatbuffers.Builder, status int32) {
+	builder.PrependInt32Slot(0, status, 0)
+}
+func EisenResponseAddHeaders(builder *flatbuffers.Builder, headers flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(headers), 0)
+}
+func EisenResponseStartHeadersVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
+	return builder.StartVector(4, numElems, 4)
 }
 func EisenResponseAddContent(builder *flatbuffers.Builder, content flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(content), 0)
+	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(content), 0)
 }
 func EisenResponseStartContentVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(1, numElems, 1)

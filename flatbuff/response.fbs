@@ -1,7 +1,8 @@
 namespace eisenbeton.wire.response;
 
 table EisenResponse {
-    content_type:string;
+    status:int;
+    headers:[string];
     content:[ubyte];
 }
 
