@@ -6,6 +6,7 @@ import (
 	"eisenbeton-go/wire"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"net/http"
 	"time"
 
@@ -129,7 +130,9 @@ func readConfig() *ConfigDatabase {
 
 func main() {
 	cfg := readConfig()
-	nc, err := nats.Connect(cfg.NatsUri)
+	nc, err := nats.Connect(cfg.NatsUri,
+		nats.RetryOnFailedConnect(true),
+		nats.ReconnectWait(time.Second*time.Duration(rand.Intn(10))))
 	if err != nil {
 		panic(err)
 	}
