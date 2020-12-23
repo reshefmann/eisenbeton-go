@@ -11,6 +11,10 @@ A web server with the following goals:
 
 The implementation is based on [nats.io](http://nats.io) for the communication between the web server and the handler.
 
+### Motivation
+"Ride" on nats.io defaults - Client libraries of nats.io will, by default, drop messages in case it does not have the capacity to handle. This is actually a good behavior as it serves as a sort of back pressure. won't crash the handlers and therefore will lead to degraded functionality rather than complete downtime.
+https://docs.nats.io/developing-with-nats/events/slow
+
 Since nats.io is used for the messaging the system is **polyglot**.
 
 ```
@@ -45,6 +49,7 @@ For the messages *eisenbeton* uses flatbuffers.
 
 ### Client libraries
 I'm working also on client libraries in several languages (first will be Clojure) and will publish them here when ready.
+Clojure client - https://github.com/reshefmann/eisenbeton-client-clj
 
 ### Other implementations
 This is the golang implementation. I plan to implement the server in more languages - Clojure (WIP), FSharp and Rust. Why? For comparison and fun.
