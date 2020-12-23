@@ -1,6 +1,6 @@
 # eisenbeton-go
 
-**Experimental** - Everything is subject to a change
+**Experimental** - Everything is subject to a change and behavior is yet to be proven.
 
 A web server with the following goals:
 - Make the transition from sync HTTP calls to async flow inside the system as close as possible to the edge.
