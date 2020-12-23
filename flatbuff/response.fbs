@@ -2,8 +2,13 @@ namespace eisenbeton.wire.response;
 
 table EisenResponse {
     status:int;
-    headers:[string];
+    headers:[Header];
     content:[ubyte];
+}
+
+table Header {
+    key:string;
+    value:string;
 }
 
 root_type EisenResponse;

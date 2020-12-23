@@ -3,8 +3,6 @@ package main
 import (
 	"eisenbeton-go/eisenbeton/wire/request"
 	"eisenbeton-go/eisenbeton/wire/response"
-	"eisenbeton-go/wire"
-	"io/ioutil"
 	"log"
 	"math/rand"
 	"net/http"
@@ -13,29 +11,28 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 	"github.com/ilyakaznacheev/cleanenv"
 	nats "github.com/nats-io/nats.go"
-	"google.golang.org/protobuf/proto"
 )
 
-func convertHttpToProtoStruct(req *http.Request) []byte {
+//func convertHttpToProtoStruct(req *http.Request) []byte {
 
-	body, _ := ioutil.ReadAll(req.Body)
-	content := string(body)
+//body, _ := ioutil.ReadAll(req.Body)
+//content := string(body)
 
-	er := wire.EisenRequest{
-		Host:        req.Host,
-		Path:        req.URL.Path,
-		Method:      req.Method,
-		ContentType: req.Header.Get("Content-Type"),
-		Content:     content,
-	}
+//er := wire.EisenRequest{
+//Host:        req.Host,
+//Path:        req.URL.Path,
+//Method:      req.Method,
+//ContentType: req.Header.Get("Content-Type"),
+//Content:     content,
+//}
 
-	msg, err := proto.Marshal(&er)
-	if err != nil {
-		log.Fatal(err)
-		return nil
-	}
-	return msg
-}
+//msg, err := proto.Marshal(&er)
+//if err != nil {
+//log.Fatal(err)
+//return nil
+//}
+//return msg
+//}
 
 func convertHttpToFlatbuffBytes(req *http.Request) []byte {
 
@@ -97,9 +94,15 @@ func sendToNatsReqRep(nc *nats.Conn, timeout time.Duration, w http.ResponseWrite
 		return
 	}
 	resp := response.GetRootAsEisenResponse(respMsg.Data, 0)
-	w.Write(resp.ContentBytes())
-	w.WriteHeader(int(resp.Status()))
 
+	log.Print(resp.HeadersLength())
+	for i := 0; i < resp.HeadersLength(); i++ {
+		var header response.Header
+		resp.Headers(&header, i)
+		w.Header().Add(string(header.Key()), string(header.Value()))
+	}
+	//w.WriteHeader(int(resp.Status()))
+	w.Write(resp.ContentBytes())
 }
 
 func makeHandler(config *ConfigDatabase, nc *nats.Conn) func(http.ResponseWriter, *http.Request) {
